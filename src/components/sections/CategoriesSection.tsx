@@ -50,7 +50,7 @@ const CategoriesSection: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ py: { xs: 6, md: 10 }, backgroundColor: '#f8fafc' }}>
+    <Box sx={{ py: { xs: 6, md: 10 }, }}>
       <Container maxWidth="xl">
         <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 8 } }}>
           <Typography variant="h2" component="h2" gutterBottom sx={{ 
