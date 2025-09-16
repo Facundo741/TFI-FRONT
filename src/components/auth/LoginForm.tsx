@@ -21,13 +21,25 @@ const LoginForm: React.FC = () => {
         email: formData.email,
         password: formData.password
       });
+
       sessionStorage.setItem('token', res.data.token);
+
+
+      if (res.data.user.role) {
+        sessionStorage.setItem('role', res.data.user.role);
+      } else {
+        sessionStorage.removeItem('role');
+      }
+
       navigate('/');
     } catch (error: any) {
       console.error(error.response?.data || error);
       alert(error.response?.data?.message || 'Error en login');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <Container maxWidth="sm" sx={{ py: 4, px: 2 }}>

@@ -10,10 +10,11 @@ export interface User {
   direccion: string;
   ciudad: string;
   codigo_postal: string;
+  role?: string
 }
 
 export interface LoginData {
   email: string;
   password: string;
-  rememberMe?: boolean;
+  rememberMe?: boolean
 }
