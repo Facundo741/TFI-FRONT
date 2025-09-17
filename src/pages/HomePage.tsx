@@ -8,7 +8,9 @@ const HomePage: React.FC = () => {
     <>
       <HeroSection />
       <FeaturesSection />
-      <CategoriesSection />
+      <div id="categorias">
+        <CategoriesSection />
+      </div>
     </>
   );
 };

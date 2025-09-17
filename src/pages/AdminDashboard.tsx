@@ -175,7 +175,6 @@ const AdminDashboard: React.FC = () => {
         ))}
       </Grid>
 
-      {/* Métricas financieras */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, borderRadius: 3, bgcolor: '#1a3447', color: 'white', boxShadow: 3 }}>

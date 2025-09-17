@@ -46,7 +46,7 @@ export const Navbar: React.FC = () => {
 
   const menuItems = [
     { text: "Inicio", path: "/" },
-    { text: "Productos", path: "/productos" },
+    { text: "Productos", path: "/products" },
     { text: "Categorías", path: "/categorias" },
     { text: "Nosotros", path: "/nosotros" },
     { text: "Contacto", path: "/contacto" },
@@ -67,10 +67,26 @@ export const Navbar: React.FC = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
   const handleNavigation = (path: string) => {
-    navigate(path);
-    setMobileMenuOpen(false);
-    setProfileAnchor(null);
+    if (path === "/categorias") {
+      if (window.location.pathname !== "/") {
+        navigate("/", { replace: false });
+        setTimeout(() => {
+          const section = document.getElementById("categorias");
+          if (section) section.scrollIntoView({ behavior: "smooth" });
+        }, 100); 
+      } else {
+        const section = document.getElementById("categorias");
+        if (section) section.scrollIntoView({ behavior: "smooth" });
+      }
+      setMobileMenuOpen(false);
+      setProfileAnchor(null);
+    } else {
+      navigate(path);
+      setMobileMenuOpen(false);
+      setProfileAnchor(null);
+    }
   };
+
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setProfileAnchor(event.currentTarget);
@@ -297,7 +313,6 @@ export const Navbar: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Menú móvil */}
       <Drawer
         anchor="left"
         open={mobileMenuOpen}
@@ -339,8 +354,6 @@ export const Navbar: React.FC = () => {
               >
                 <ListItemText primary="👤 Mi Perfil" />
               </ListItemButton>
-
-              {/* Opciones de Admin en móvil */}
               {isAdmin && (
                 <>
                   <ListItemButton 
