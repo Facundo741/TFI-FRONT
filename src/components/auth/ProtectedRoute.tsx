@@ -1,18 +1,18 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 interface ProtectedRouteProps {
-  roleRequired?: string;
-  children: JSX.Element;
+  roleRequired?: "admin" | "user";
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ roleRequired, children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ roleRequired }) => {
   const token = sessionStorage.getItem("token");
   const role = sessionStorage.getItem("role");
 
   if (!token) return <Navigate to="/login" />;
+
   if (roleRequired && role !== roleRequired) return <Navigate to="/" />;
 
-  return children;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
