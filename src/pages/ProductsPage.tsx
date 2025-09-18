@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Button, MenuItem, Typography, Card, CardContent, CardActions, CardMedia, Grid } from "@mui/material";
-import API from "../api/api"; 
+import { Box, Typography, Card, CardContent, CardActions, CardMedia, Grid, TextField, Button, CircularProgress } from "@mui/material";
+import API from "../api/api";
+import { useAuth } from "../context/AuthContext";
+import { addToCart } from "../hooks/cartService";
+import { useCart } from "../context/CartContext";
 
 interface Producto {
   id_producto: number;
@@ -14,10 +17,14 @@ interface Producto {
 
 const categorias = ["Todos", "Cables", "Iluminación", "Herramientas", "Interruptores", "Tomacorrientes"];
 
+
+
 const ProductsPage: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [search, setSearch] = useState("");
   const [categoria, setCategoria] = useState("Todos");
+  const { user, token, loading } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -31,15 +38,63 @@ const ProductsPage: React.FC = () => {
     fetchProductos();
   }, []);
 
-  const filteredProducts = productos.filter(p => 
+  useEffect(() => {
+    if (!loading) {
+      setIsAuthenticated(!!user && !!token);
+    }
+  }, [loading, user, token]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={5}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+    if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={5}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  const { setCartCount } = useCart();
+
+  const updateProductStock = (productId: number, nuevaCantidad: number) => {
+  setProductos(prev =>
+    prev.map(p => p.id_producto === productId ? { ...p, stock: nuevaCantidad } : p)
+  );
+};
+
+  const filteredProducts = productos.filter(p =>
     (categoria === "Todos" || p.categoria === categoria) &&
     (p.nombre.toLowerCase().includes(search.toLowerCase()) || p.descripcion.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const handleAddToCart = (producto: Producto) => {
+  const handleAddToCart = async (producto: Producto) => {
+    if (!isAuthenticated || !user || !token) {
+      alert("Debes iniciar sesión para agregar productos al carrito");
+      return;
+    }
 
-    console.log("Agregar al carrito:", producto);
+    try {
+      await addToCart(user.id, producto.id_producto, 1, token);
+
+      const res = await API.patch(`/products/${producto.id_producto}/reduce-stock`, { cantidad: 1 });
+      setCartCount(prev => prev + 1);
+
+      updateProductStock(producto.id_producto, res.data.stock);
+
+      alert(`${producto.nombre} agregado al carrito ✅`);
+    } catch (err: any) {
+      console.error("Error agregando al carrito:", err);
+      alert(err.response?.data?.message || "No se pudo agregar el producto al carrito");
+    }
   };
+
+  
+
 
   return (
     <Box sx={{ p: 3 }}>
@@ -53,9 +108,9 @@ const ProductsPage: React.FC = () => {
           fullWidth
         />
         {categorias.map(cat => (
-          <Button 
-            key={cat} 
-            variant={categoria === cat ? "contained" : "outlined"} 
+          <Button
+            key={cat}
+            variant={categoria === cat ? "contained" : "outlined"}
             onClick={() => setCategoria(cat)}
           >
             {cat}
@@ -79,9 +134,15 @@ const ProductsPage: React.FC = () => {
                 <Typography variant="subtitle1" color="green">${producto.precio}</Typography>
               </CardContent>
               <CardActions>
-                <Button fullWidth variant="contained" onClick={() => handleAddToCart(producto)}>
-                  + Agregar
-                </Button>
+                {!user || !token ? (
+                  <Button fullWidth variant="contained" disabled>
+                    Inicia sesión para agregar
+                  </Button>
+                ) : (
+                  <Button fullWidth variant="contained" onClick={() => handleAddToCart(producto)}>
+                    + Agregar
+                  </Button>
+                )}
               </CardActions>
             </Card>
           </Grid>

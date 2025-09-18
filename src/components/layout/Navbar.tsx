@@ -32,6 +32,7 @@ import {
   Payment
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -40,6 +41,7 @@ export const Navbar: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const { cartCount } = useCart();
   const isLoggedIn = !!sessionStorage.getItem("token");
   const role = sessionStorage.getItem("role");
   const isAdmin = role === "admin";
@@ -98,6 +100,7 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user"); 
     sessionStorage.removeItem("role"); 
     handleProfileMenuClose();
     setMobileMenuOpen(false);
@@ -163,7 +166,7 @@ export const Navbar: React.FC = () => {
                   transition: "all 0.2s ease"
                 }}
               >
-                <Badge badgeContent={0} color="error">
+                <Badge badgeContent={cartCount} color="error">
                   <ShoppingCart sx={{ color: "white" }} />
                 </Badge>
               </IconButton>
