@@ -7,10 +7,9 @@ import RegisterPage from "./pages/RegisterPage";
 import ProductsPage from "./pages/ProductsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
+import AdminOrders from './pages/AdminOrders'
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CartPage from "./pages/CartPage";
-
-// 🔹 Importar AuthProvider
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 
@@ -24,17 +23,12 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-
-          {/* Página de productos para todos los usuarios */}
           <Route path="/products" element={<ProductsPage />} />
-
-          {/* Página del carrito */}
           <Route path="/cart" element={<CartPage />} />
-
-          {/* Rutas protegidas admin */}
           <Route element={<ProtectedRoute roleRequired="admin" />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
           </Route>
         </Routes>
         <Footer />
