@@ -7,7 +7,8 @@ import RegisterPage from "./pages/RegisterPage";
 import ProductsPage from "./pages/ProductsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
-import AdminOrders from './pages/AdminOrders'
+import AdminOrders from './pages/AdminOrders';
+import AdminUsers from './pages/AdminUsers'; 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CartPage from "./pages/CartPage";
 import { AuthProvider } from "./context/AuthContext";
@@ -17,22 +18,25 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-      <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route element={<ProtectedRoute roleRequired="admin" />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/products" element={<AdminProducts />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
-          </Route>
-        </Routes>
-        <Footer />
-      </Router>
+        <Router>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/cart" element={<CartPage />} />
+
+            {/* 🔐 Rutas protegidas para admin */}
+            <Route element={<ProtectedRoute roleRequired="admin" />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/users" element={<AdminUsers />} /> {/* 👈 nueva ruta */}
+            </Route>
+          </Routes>
+          <Footer />
+        </Router>
       </CartProvider>
     </AuthProvider>
   );
