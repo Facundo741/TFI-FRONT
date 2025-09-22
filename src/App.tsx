@@ -7,8 +7,9 @@ import RegisterPage from "./pages/RegisterPage";
 import ProductsPage from "./pages/ProductsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
-import AdminOrders from './pages/AdminOrders';
-import AdminUsers from './pages/AdminUsers'; 
+import AdminOrders from "./pages/AdminOrders";
+import AdminReports from "./pages/AdminReports";
+import AdminUsers from "./pages/AdminUsers";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CartPage from "./pages/CartPage";
 import { AuthProvider } from "./context/AuthContext";
@@ -21,6 +22,7 @@ function App() {
         <Router>
           <Navbar />
           <Routes>
+            {/* 🌍 Rutas públicas */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
@@ -29,10 +31,11 @@ function App() {
 
             {/* 🔐 Rutas protegidas para admin */}
             <Route element={<ProtectedRoute roleRequired="admin" />}>
-              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/users" element={<AdminUsers />} /> 
               <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/admin/users" element={<AdminUsers />} /> {/* 👈 nueva ruta */}
+              <Route path="/admin/reports" element={<AdminReports />} /> 
             </Route>
           </Routes>
           <Footer />

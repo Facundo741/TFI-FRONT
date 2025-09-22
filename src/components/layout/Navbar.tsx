@@ -27,7 +27,6 @@ import {
   Receipt,
   BarChart,
   Settings,
-  Category,
   LocalShipping,
   Payment
 } from "@mui/icons-material";
@@ -55,9 +54,8 @@ export const Navbar: React.FC = () => {
   ];
 
   const adminMenuItems = [
-    { text: "Dashboard Admin", icon: <Dashboard />, path: "/admin" },
+    { text: "Dashboard", icon: <Dashboard />, path: "/admin/dashboard" },
     { text: "Gestión de Productos", icon: <Inventory />, path: "/admin/products" },
-    { text: "Categorías", icon: <Category />, path: "/admin/categories" },
     { text: "Gestión de Clientes", icon: <People />, path: "/admin/users" },
     { text: "Pedidos", icon: <Receipt />, path: "/admin/orders" },
     { text: "Envíos", icon: <LocalShipping />, path: "/admin/shipping" },
