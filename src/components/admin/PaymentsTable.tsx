@@ -11,7 +11,6 @@ import {
   Chip,
 } from "@mui/material";
 
-// Exportamos el tipo Payment explícitamente
 export interface Payment {
   id_pago: number;
   id_pedido: number;

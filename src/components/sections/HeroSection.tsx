@@ -95,7 +95,6 @@ const HeroSection: React.FC = () => {
         </Grid>
       </Container>
 
-      {/* Elemento decorativo inferior */}
       <Box sx={{
         position: 'absolute',
         bottom: 0,

@@ -87,7 +87,7 @@ const CartPage: React.FC = () => {
   if (authLoading || loading) return <Box display="flex" justifyContent="center" mt={5}><CircularProgress /></Box>;
   if (!cartItems || cartItems.length === 0)
     return (
-      <Box mt={5} textAlign="center">
+      <Box sx={{ p: 3, minHeight: "calc(100vh - 64px - 64px)" }}>
         <Typography variant="h5">Carrito vacío</Typography>
         <Button variant="contained" onClick={handleContinueShopping} sx={{ mt: 2 }}>Seguir Comprando</Button>
       </Box>

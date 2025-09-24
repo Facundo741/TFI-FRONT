@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, Button, TextField } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
+import API from "../../api/api"; 
 
 interface CartItem {
   producto_nombre: string;
@@ -33,6 +35,7 @@ const PaymentPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { clearCart } = useCart();
+  const { user } = useAuth(); 
   const state = location.state as PaymentState;
 
   const [mpEmail, setMpEmail] = useState("");
@@ -42,30 +45,63 @@ const PaymentPage: React.FC = () => {
   const [cardNumber, setCardNumber] = useState(randomNumberString(16));
   const [cardCCV, setCardCCV] = useState(randomNumberString(3));
   const [cardExp, setCardExp] = useState(`${randomNumberString(2)}/${randomNumberString(2)}`);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (state.metodoPago === "transferencia") {
+    if (state?.metodoPago === "transferencia") {
       setTransferCuenta(randomNumberString(14));
       setTransferReferencia(randomNumberString(6));
     }
-  }, [state.metodoPago]);
+  }, [state?.metodoPago]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   if (!state) return <Typography>No se encontró información del pedido</Typography>;
+  if (!user) return null; 
 
   const envioFinal = state.metodoEntrega === "retiro" ? 0 : state.envio;
   const totalFinal = state.subtotal + envioFinal;
 
-  const handleConfirm = () => {
-    const confirmationState: PaymentState = {
-      ...state,
-      envio: envioFinal,
-      total: totalFinal,
-      email: mpEmail || state.email,
-    };
+  const handleConfirm = async () => {
+    setLoading(true);
+    try {
+      const pedidoData = {
+          metodo_pago: state.metodoPago,
+          metodo_entrega: state.metodoEntrega,
+          direccion_entrega: state.direccion,
+          ciudad_entrega: state.ciudad,
+          codigo_postal_entrega: state.codigoPostal,
+          telefono_contacto: state.telefono,
+          nombre_completo: state.nombre,
+          productos: state.cartItems.map(item => ({
+            id_producto: item.id_producto,
+            cantidad: item.cantidad,
+          })),
+      };
 
-    clearCart(); 
+      const res = await API.post(`/order/usuario/${user.id_usuario}/carrito/confirmar`, pedidoData);
 
-    navigate("/checkout/confirmacion", { state: confirmationState });
+
+      const confirmationState: PaymentState & { id_pedido: number } = {
+        ...state,
+        envio: envioFinal,
+        total: totalFinal,
+        id_pedido: res.data.id_pedido,
+        email: mpEmail || state.email,
+      };
+
+      clearCart();
+      navigate("/checkout/confirmacion", { state: confirmationState });
+    } catch (err) {
+      console.error("Error al crear el pedido:", err);
+      alert("No se pudo procesar tu pedido. Intenta nuevamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -126,9 +162,16 @@ const PaymentPage: React.FC = () => {
         </>
       )}
 
-      <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleConfirm}>
-        Confirmar Pedido
+      <Button
+        fullWidth
+        variant="contained"
+        sx={{ mt: 2 }}
+        onClick={handleConfirm}
+        disabled={loading}
+      >
+        {loading ? "Procesando..." : "Confirmar Pedido"}
       </Button>
+
       <Button fullWidth variant="outlined" sx={{ mt: 1 }} onClick={() => navigate("/checkout")}>
         Volver
       </Button>

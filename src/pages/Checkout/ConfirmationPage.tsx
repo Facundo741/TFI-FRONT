@@ -31,7 +31,6 @@ const ConfirmationPage: React.FC = () => {
   const { clearCart } = useCart();
   const state = location.state as ConfirmationState;
 
-  // Limpiamos carrito al montar la página de confirmación
   useEffect(() => {
     clearCart();
   }, []);
