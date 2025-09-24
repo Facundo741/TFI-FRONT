@@ -52,7 +52,6 @@ const Checkout: React.FC = () => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Form fields
   const [nombre, setNombre] = useState("");
   const [direccion, setDireccion] = useState("");
   const [ciudad, setCiudad] = useState("");
@@ -62,7 +61,6 @@ const Checkout: React.FC = () => {
   const [metodoEntrega, setMetodoEntrega] = useState<"domicilio" | "retiro">("domicilio");
   const [metodoPago, setMetodoPago] = useState<"mercadopago" | "transferencia" | "tarjeta" | "efectivo">("mercadopago");
 
-  // fetch carrito
   const fetchCart = async () => {
     if (!user) return;
     setLoading(true);
@@ -104,7 +102,6 @@ const Checkout: React.FC = () => {
   const shippingCost = metodoEntrega === "domicilio" ? Math.max(subtotal * 0.1, 500) : 0;
   const total = subtotal + shippingCost;
 
-  // handle para ir a PaymentPage
   const handleFinish = () => {
     if (!user) return;
     if (!nombre) {

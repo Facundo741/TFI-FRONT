@@ -30,14 +30,24 @@ const PaymentsPage: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" fontWeight="bold">
+    <Box 
+      sx={{ 
+        p: 3, 
+        minHeight: 'calc(100vh - 64px)',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 }}>
         Pagos
       </Typography>
+      
       {loading ? (
         <CircularProgress sx={{ mt: 3 }} />
       ) : (
-        <PaymentsTable payments={payments} />
+        <Box sx={{ flexGrow: 1 }}>
+          <PaymentsTable payments={payments} />
+        </Box>
       )}
     </Box>
   );

@@ -1,18 +1,24 @@
+import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 interface ProtectedRouteProps {
   roleRequired?: "admin" | "user";
+  children?: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ roleRequired }) => {
-  const token = sessionStorage.getItem("token");
-  const role = sessionStorage.getItem("role");
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ roleRequired, children }) => {
+  const { user } = useAuth();
 
-  if (!token) return <Navigate to="/login" />;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  if (roleRequired && role !== roleRequired) return <Navigate to="/" />;
+  if (roleRequired && user.role !== roleRequired) {
+    return <Navigate to="/" replace />;
+  }
 
-  return <Outlet />;
+  return children ? <>{children}</> : <Outlet />;
 };
 
 export default ProtectedRoute;

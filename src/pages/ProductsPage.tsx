@@ -164,8 +164,7 @@ const ProductsPage: React.FC = () => {
           </Grid>
         ))}
       </Grid>
-
-      {/* Modal */}
+      
       <Dialog open={modalOpen} onClose={closeModal} maxWidth="sm" fullWidth>
         {selectedProduct && (
           <>

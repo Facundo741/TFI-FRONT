@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Navbar } from "./components/layout/Navbar";
+import { Navbar }  from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -20,6 +20,8 @@ import ConfirmationPage from "./pages/Checkout/ConfirmationPage";import PaymentP
 import ProductDetailPage from "./pages/ProductDetailPage";
 import AboutPage from "./pages/AboutPage";
 import ContactoPage from "./pages/ContactPage";
+import SettingsPage from "./pages/SettingsPage";
+import OrdersPage from "./pages/OrdersPage";
 
 
 function App() {
@@ -29,20 +31,23 @@ function App() {
         <Router>
           <Navbar />
           <Routes>
-            {/* 🌍 Rutas públicas */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/checkout/pago" element={<PaymentPage />} />
-            <Route path="/checkout/confirmacion" element={<ConfirmationPage />} />
             <Route path="/nosotros" element={<AboutPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
 
-            {/* 🔐 Rutas protegidas para admin */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/checkout/pago" element={<PaymentPage />} />
+              <Route path="/checkout/confirmacion" element={<ConfirmationPage />} />
+              <Route path="/orders" element={<OrdersPage />} />
+            </Route>
+
             <Route element={<ProtectedRoute roleRequired="admin" />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/products" element={<AdminProducts />} />

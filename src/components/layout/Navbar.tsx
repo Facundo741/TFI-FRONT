@@ -58,10 +58,14 @@ export const Navbar: React.FC = () => {
     { text: "Gestión de Productos", icon: <Inventory />, path: "/admin/products" },
     { text: "Gestión de Clientes", icon: <People />, path: "/admin/users" },
     { text: "Pedidos", icon: <Receipt />, path: "/admin/order" },
-    { text: "Envíos", icon: <LocalShipping />, path: "/admin/shipping" },
     { text: "Pagos", icon: <Payment />, path: "/admin/bill" },
     { text: "Reportes", icon: <BarChart />, path: "/admin/reports" },
-    { text: "Configuración", icon: <Settings />, path: "/admin/settings" },
+    { text: "Configuración", icon: <Settings />, path: "/settings" },
+  ];
+
+  const clientMenuItems = [
+    { text: "Pedidos", icon: <Receipt />, path: "/orders" },
+    { text: "Configuración", icon: <Settings />, path: "/settings" }
   ];
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
@@ -78,15 +82,12 @@ export const Navbar: React.FC = () => {
         const section = document.getElementById("categorias");
         if (section) section.scrollIntoView({ behavior: "smooth" });
       }
-      setMobileMenuOpen(false);
-      setProfileAnchor(null);
     } else {
       navigate(path);
-      setMobileMenuOpen(false);
-      setProfileAnchor(null);
     }
+    setMobileMenuOpen(false);
+    setProfileAnchor(null);
   };
-
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setProfileAnchor(event.currentTarget);
@@ -207,16 +208,30 @@ export const Navbar: React.FC = () => {
                         }
                       }}
                     >
-                      <MenuItem 
+                      {/* <MenuItem 
                         onClick={() => { handleProfileMenuClose(); handleNavigation("/profile"); }}
                         sx={{ fontWeight: 600 }}
                       >
                         👤 Mi Perfil
-                      </MenuItem>
+                      </MenuItem> */}
 
                       <Divider />
 
-                      {/* Opciones de Admin */}
+                      {/* Opciones Cliente */}
+                      {!isAdmin && clientMenuItems.map((item) => (
+                        <MenuItem
+                          key={item.text}
+                          onClick={() => { handleProfileMenuClose(); handleNavigation(item.path); }}
+                          sx={{ pl: 3 }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {item.icon}
+                            <span>{item.text}</span>
+                          </Box>
+                        </MenuItem>
+                      ))}
+
+                      {/* Opciones Admin */}
                       {isAdmin && (
                         <>
                           <MenuItem 
@@ -229,8 +244,8 @@ export const Navbar: React.FC = () => {
                           >
                             🛠️ PANEL ADMINISTRATIVO
                           </MenuItem>
-                          
-                          {adminMenuItems.slice(0, 3).map((item) => (
+
+                          {adminMenuItems.map((item) => (
                             <MenuItem 
                               key={item.text}
                               onClick={() => { handleProfileMenuClose(); handleNavigation(item.path); }}
@@ -242,25 +257,10 @@ export const Navbar: React.FC = () => {
                               </Box>
                             </MenuItem>
                           ))}
-                          
-                          <Divider />
-                          
-                          {adminMenuItems.slice(3).map((item) => (
-                            <MenuItem 
-                              key={item.text}
-                              onClick={() => { handleProfileMenuClose(); handleNavigation(item.path); }}
-                              sx={{ pl: 3 }}
-                            >
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                {item.icon}
-                                <span>{item.text}</span>
-                              </Box>
-                            </MenuItem>
-                          ))}
-                          
-                          <Divider />
                         </>
                       )}
+
+                      <Divider />
 
                       <MenuItem 
                         onClick={handleLogout}
@@ -342,7 +342,7 @@ export const Navbar: React.FC = () => {
 
           {isLoggedIn ? (
             <>
-              <ListItemButton 
+              {/* <ListItemButton 
                 onClick={() => handleNavigation("/profile")} 
                 sx={{ 
                   "&:hover": { 
@@ -354,41 +354,27 @@ export const Navbar: React.FC = () => {
                 }}
               >
                 <ListItemText primary="👤 Mi Perfil" />
-              </ListItemButton>
-              {isAdmin && (
-                <>
-                  <ListItemButton 
-                    sx={{ 
-                      bgcolor: 'rgba(79, 195, 247, 0.2)',
-                      mb: 0.5,
-                      '&:hover': { bgcolor: 'rgba(79, 195, 247, 0.3)' }
-                    }}
-                  >
-                    <ListItemText 
-                      primary="🛠️ PANEL ADMIN" 
-                      sx={{ fontWeight: 'bold' }}
-                    />
-                  </ListItemButton>
-                  
-                  {adminMenuItems.map((item) => (
-                    <ListItemButton
-                      key={item.text}
-                      onClick={() => handleNavigation(item.path)}
-                      sx={{ 
-                        pl: 4,
-                        "&:hover": { 
-                          bgcolor: "rgba(255,255,255,0.1)",
-                          transform: "translateX(5px)"
-                        },
-                        transition: "all 0.2s ease",
-                        mb: 0.5
-                      }}
-                    >
-                      <ListItemText primary={item.text} />
-                    </ListItemButton>
-                  ))}
-                </>
-              )}
+              </ListItemButton> */}
+
+              {!isAdmin && clientMenuItems.map((item) => (
+                <ListItemButton
+                  key={item.text}
+                  onClick={() => handleNavigation(item.path)}
+                  sx={{ pl: 3, "&:hover": { bgcolor: "rgba(255,255,255,0.1)", transform: "translateX(5px)" }, transition: "all 0.2s ease", mb: 0.5 }}
+                >
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              ))}
+
+              {isAdmin && adminMenuItems.map((item) => (
+                <ListItemButton
+                  key={item.text}
+                  onClick={() => handleNavigation(item.path)}
+                  sx={{ pl: 3, "&:hover": { bgcolor: "rgba(255,255,255,0.1)", transform: "translateX(5px)" }, transition: "all 0.2s ease", mb: 0.5 }}
+                >
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              ))}
 
               <ListItemButton 
                 onClick={handleLogout}
@@ -409,27 +395,13 @@ export const Navbar: React.FC = () => {
             <>
               <ListItemButton 
                 onClick={() => handleNavigation("/login")} 
-                sx={{ 
-                  "&:hover": { 
-                    bgcolor: "rgba(255,255,255,0.1)",
-                    transform: "translateX(5px)"
-                  },
-                  transition: "all 0.2s ease",
-                  mb: 0.5
-                }}
+                sx={{ "&:hover": { bgcolor: "rgba(255,255,255,0.1)", transform: "translateX(5px)" }, transition: "all 0.2s ease", mb: 0.5 }}
               >
                 <ListItemText primary="Iniciar Sesión" />
               </ListItemButton>
               <ListItemButton 
                 onClick={() => handleNavigation("/register")} 
-                sx={{ 
-                  "&:hover": { 
-                    bgcolor: "rgba(255,255,255,0.1)",
-                    transform: "translateX(5px)"
-                  },
-                  transition: "all 0.2s ease",
-                  mb: 0.5
-                }}
+                sx={{ "&:hover": { bgcolor: "rgba(255,255,255,0.1)", transform: "translateX(5px)" }, transition: "all 0.2s ease", mb: 0.5 }}
               >
                 <ListItemText primary="Registrarse" />
               </ListItemButton>
