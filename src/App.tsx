@@ -18,6 +18,9 @@ import { CartProvider } from "./context/CartContext";
 import Checkout from "./pages/Checkout/Checkout";
 import ConfirmationPage from "./pages/Checkout/ConfirmationPage";import PaymentPage from "./pages/Checkout/PaymentPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import AboutPage from "./pages/AboutPage";
+import ContactoPage from "./pages/ContactPage";
+
 
 function App() {
   return (
@@ -36,6 +39,8 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/pago" element={<PaymentPage />} />
             <Route path="/checkout/confirmacion" element={<ConfirmationPage />} />
+            <Route path="/nosotros" element={<AboutPage />} />
+            <Route path="/contacto" element={<ContactoPage />} />
 
             {/* 🔐 Rutas protegidas para admin */}
             <Route element={<ProtectedRoute roleRequired="admin" />}>
