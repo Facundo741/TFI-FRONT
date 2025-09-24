@@ -57,9 +57,9 @@ export const Navbar: React.FC = () => {
     { text: "Dashboard", icon: <Dashboard />, path: "/admin/dashboard" },
     { text: "Gestión de Productos", icon: <Inventory />, path: "/admin/products" },
     { text: "Gestión de Clientes", icon: <People />, path: "/admin/users" },
-    { text: "Pedidos", icon: <Receipt />, path: "/admin/orders" },
+    { text: "Pedidos", icon: <Receipt />, path: "/admin/order" },
     { text: "Envíos", icon: <LocalShipping />, path: "/admin/shipping" },
-    { text: "Pagos", icon: <Payment />, path: "/admin/payments" },
+    { text: "Pagos", icon: <Payment />, path: "/admin/bill" },
     { text: "Reportes", icon: <BarChart />, path: "/admin/reports" },
     { text: "Configuración", icon: <Settings />, path: "/admin/settings" },
   ];

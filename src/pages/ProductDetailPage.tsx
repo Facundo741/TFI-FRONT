@@ -15,9 +15,6 @@ import {
   DialogContent,
 } from "@mui/material";
 import API from "../api/api";
-import { useAuth } from "../context/AuthContext";
-import { addToCart } from "../hooks/cartService";
-import { useCart } from "../context/CartContext";
 
 interface Producto {
   id_producto: number;
@@ -35,9 +32,7 @@ const ProductsPage: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [search, setSearch] = useState("");
   const [categoria, setCategoria] = useState("Todos");
-  const { user, token, loading } = useAuth();
-  const [isAuthenticated, setIsAuthenticated] = useState(!!user && !!token);
-  const { setCartCount } = useCart();
+  const [loading, setLoading] = useState(true);
 
   const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -49,42 +44,17 @@ const ProductsPage: React.FC = () => {
         setProductos(res.data);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProductos();
   }, []);
 
-  useEffect(() => {
-    setIsAuthenticated(!!user && !!token);
-  }, [user, token]);
-
-  const updateProductStock = (productId: number, nuevaCantidad: number) => {
-    setProductos(prev =>
-      prev.map(p => p.id_producto === productId ? { ...p, stock: nuevaCantidad } : p)
-    );
-  };
-
   const filteredProducts = productos.filter(p =>
     (categoria === "Todos" || p.categoria === categoria) &&
     (p.nombre.toLowerCase().includes(search.toLowerCase()) || p.descripcion.toLowerCase().includes(search.toLowerCase()))
   );
-
-  const handleAddToCart = async (producto: Producto) => {
-    if (!isAuthenticated || !user || !token) {
-      alert("Debes iniciar sesión para agregar productos al carrito");
-      return;
-    }
-    try {
-      await addToCart(user.id, producto.id_producto, 1, token);
-      const res = await API.patch(`/products/${producto.id_producto}/reduce-stock`, { cantidad: 1 });
-      setCartCount(prev => prev + 1);
-      updateProductStock(producto.id_producto, res.data.stock);
-      alert(`${producto.nombre} agregado al carrito ✅`);
-    } catch (err: any) {
-      console.error("Error agregando al carrito:", err);
-      alert(err.response?.data?.message || "No se pudo agregar el producto al carrito");
-    }
-  };
 
   const openModal = (producto: Producto) => {
     setSelectedProduct(producto);
@@ -122,22 +92,19 @@ const ProductsPage: React.FC = () => {
         {filteredProducts.map(producto => (
           <Grid item xs={12} sm={6} md={4} key={producto.id_producto}>
             <Card sx={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
-                <CardMedia
-                  component="img"
-                  height={180}
-                  image={producto.imagen_url || "/placeholder.png"}
-                  alt={producto.nombre}
-                  sx={{ 
-                    objectFit: "contain", 
-                    bgcolor: "#f5f5f5", 
-                    p: 1, 
-                    width: "100%", 
-                    maxHeight: 180 
-                  }}
-                />
+              <CardMedia
+                component="img"
+                height="180"
+                image={producto.imagen_url || "/placeholder.png"}
+                alt={producto.nombre}
+                sx={{ objectFit: "contain", bgcolor: "#f5f5f5", p: 1 }}
+              />
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography variant="h6" noWrap sx={{ textOverflow: "ellipsis", overflow: "hidden", mb: 0.5 }}>
-                  {producto.nombre.length > 20 ? producto.nombre.substring(0, 20) + "..." : producto.nombre}
+                  {producto.nombre}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {producto.descripcion.length > 50 ? producto.descripcion.substring(0, 50) + "..." : producto.descripcion}
                 </Typography>
                 <Typography variant="subtitle1" color="green" fontWeight="bold">
                   ${producto.precio}
@@ -146,18 +113,9 @@ const ProductsPage: React.FC = () => {
                   {producto.stock > 0 ? `Stock: ${producto.stock}` : "Agotado"}
                 </Typography>
               </CardContent>
-              <CardActions sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Button fullWidth variant="outlined" color="secondary" onClick={() => openModal(producto)}>
+              <CardActions>
+                <Button fullWidth variant="outlined" onClick={() => openModal(producto)}>
                   Ver detalle
-                </Button>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  disabled={!isAuthenticated || producto.stock === 0}
-                  onClick={() => handleAddToCart(producto)}
-                >
-                  {!isAuthenticated ? "Inicia sesión" : producto.stock === 0 ? "Sin stock" : "+ Agregar"}
                 </Button>
               </CardActions>
             </Card>
