@@ -8,7 +8,7 @@ interface ProductFormProps {
   onCancel?: () => void;
 }
 
-const categorias = ["Cables", "Iluminación", "Herramientas", "Interruptores", "Tomacorrientes"];
+const categorias = ["Cables", "Iluminación", "Herramientas", "Interruptores", "Tomacorrientes", "Baterías", "Automatización"];
 
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, editingProduct, onCancel }) => {
   const [formData, setFormData] = useState({
