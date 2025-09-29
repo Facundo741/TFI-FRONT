@@ -13,11 +13,14 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  Alert,
+  Snackbar
 } from "@mui/material";
 import API from "../api/api";
 import { useAuth } from "../context/AuthContext";
 import { addToCart } from "../hooks/cartService";
 import { useCart } from "../context/CartContext";
+import PaginationComponent from "../utils/PaginationComponent"; 
 
 interface Producto {
   id_producto: number;
@@ -41,6 +44,11 @@ const ProductsPage: React.FC = () => {
 
   const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: "success" | "error" | "info" | "warning" }>({ open: false, message: "", severity: "success" });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 6;
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -69,9 +77,17 @@ const ProductsPage: React.FC = () => {
     (p.nombre.toLowerCase().includes(search.toLowerCase()) || p.descripcion.toLowerCase().includes(search.toLowerCase()))
   );
 
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
   const handleAddToCart = async (producto: Producto) => {
     if (!isAuthenticated || !user || !token) {
-      alert("Debes iniciar sesión para agregar productos al carrito");
+      setSnackbar({ open: true, message: "Debes iniciar sesión para agregar productos", severity: "info" });
+      return;
+    }
+    if (producto.stock === 0) {
+      setSnackbar({ open: true, message: "No hay stock disponible", severity: "error" });
       return;
     }
     try {
@@ -79,10 +95,10 @@ const ProductsPage: React.FC = () => {
       const res = await API.patch(`/products/${producto.id_producto}/reduce-stock`, { cantidad: 1 });
       setCartCount(prev => prev + 1);
       updateProductStock(producto.id_producto, res.data.stock);
-      alert(`${producto.nombre} agregado al carrito ✅`);
+      setSnackbar({ open: true, message: `${producto.nombre} agregado al carrito ✅`, severity: "success" });
     } catch (err: any) {
       console.error("Error agregando al carrito:", err);
-      alert(err.response?.data?.message || "No se pudo agregar el producto al carrito");
+      setSnackbar({ open: true, message: err.response?.data?.message || "No se pudo agregar el producto", severity: "error" });
     }
   };
 
@@ -95,6 +111,10 @@ const ProductsPage: React.FC = () => {
     setModalOpen(false);
     setSelectedProduct(null);
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoria]);
 
   if (loading) return <Box display="flex" justifyContent="center" mt={5}><CircularProgress /></Box>;
 
@@ -118,30 +138,23 @@ const ProductsPage: React.FC = () => {
           </Button>
         ))}
       </Box>
+
       <Grid container spacing={3}>
-        {filteredProducts.map(producto => (
+        {currentProducts.map(producto => (
           <Grid item xs={12} sm={6} md={4} key={producto.id_producto}>
             <Card sx={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
-                <CardMedia
-                  component="img"
-                  height={180}
-                  image={producto.imagen_url || "/placeholder.png"}
-                  alt={producto.nombre}
-                  sx={{ 
-                    objectFit: "contain", 
-                    bgcolor: "#f5f5f5", 
-                    p: 1, 
-                    width: "100%", 
-                    maxHeight: 180 
-                  }}
-                />
+              <CardMedia
+                component="img"
+                height={180}
+                image={producto.imagen_url || "/placeholder.png"}
+                alt={producto.nombre}
+                sx={{ objectFit: "contain", bgcolor: "#f5f5f5", p: 1, width: "100%", maxHeight: 180 }}
+              />
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography variant="h6" noWrap sx={{ textOverflow: "ellipsis", overflow: "hidden", mb: 0.5 }}>
                   {producto.nombre.length > 20 ? producto.nombre.substring(0, 20) + "..." : producto.nombre}
                 </Typography>
-                <Typography variant="subtitle1" color="green" fontWeight="bold">
-                  ${producto.precio}
-                </Typography>
+                <Typography variant="subtitle1" color="green" fontWeight="bold">${producto.precio}</Typography>
                 <Typography variant="caption" color={producto.stock > 0 ? "text.secondary" : "error"}>
                   {producto.stock > 0 ? `Stock: ${producto.stock}` : "Agotado"}
                 </Typography>
@@ -164,7 +177,23 @@ const ProductsPage: React.FC = () => {
           </Grid>
         ))}
       </Grid>
-      
+
+      <PaginationComponent
+        currentPage={currentPage}
+        totalItems={filteredProducts.length}
+        itemsPerPage={productsPerPage}
+        onPageChange={setCurrentPage}
+        itemsName="productos"
+      />
+
+      {filteredProducts.length === 0 && (
+        <Box sx={{ textAlign: 'center', py: 4 }}>
+          <Typography variant="body1" color="textSecondary">
+            No se encontraron productos
+          </Typography>
+        </Box>
+      )}
+
       <Dialog open={modalOpen} onClose={closeModal} maxWidth="sm" fullWidth>
         {selectedProduct && (
           <>
@@ -182,6 +211,17 @@ const ProductsPage: React.FC = () => {
           </>
         )}
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

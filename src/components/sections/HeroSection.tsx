@@ -1,7 +1,27 @@
 import React from 'react';
 import { Container, Typography, Button, Grid, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path: string) => {
+    if (path === "/categorias") {
+      if (window.location.pathname !== "/") {
+        navigate("/", { replace: false });
+        setTimeout(() => {
+          const section = document.getElementById("categorias");
+          if (section) section.scrollIntoView({ behavior: "smooth" });
+        }, 100); 
+      } else {
+        const section = document.getElementById("categorias");
+        if (section) section.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
     <Box sx={{ 
       py: 10, 
@@ -47,6 +67,7 @@ const HeroSection: React.FC = () => {
               <Button 
                 variant="outlined" 
                 size="large" 
+                onClick={() => handleNavigation("/categorias")}
                 sx={{ 
                   px: 5,
                   py: 1.5,
@@ -70,6 +91,7 @@ const HeroSection: React.FC = () => {
               <Button 
                 variant="outlined" 
                 size="large"
+                onClick={() => handleNavigation("/contacto")}
                 sx={{ 
                   px: 5,
                   py: 1.5,
