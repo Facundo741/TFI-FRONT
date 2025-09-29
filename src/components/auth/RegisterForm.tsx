@@ -97,17 +97,24 @@ const RegisterForm: React.FC = () => {
     e.preventDefault();
     let isValid = true;
     const newErrors: FormErrors = {};
+
+    // Validación front-end
     Object.keys(formData).forEach(key => {
       const error = validateField(key, formData[key as keyof typeof formData]);
       if (error) { newErrors[key as keyof FormErrors] = error; isValid = false; }
     });
-    if (!isValid) { setErrors(newErrors); setAlert({ type: 'error', message: 'Corrige los errores' }); return; }
+
+    if (!isValid) {
+      setErrors(newErrors);
+      setAlert({ type: 'error', message: 'Corrige los errores' });
+      return;
+    }
 
     setLoading(true);
     setAlert(null);
 
     try {
-      const res = await API.post('/users/create', {
+      await API.post('/users/create', {
         nombre: formData.nombre,
         apellido: formData.apellido,
         dni: formData.dni,
@@ -125,57 +132,93 @@ const RegisterForm: React.FC = () => {
 
     } catch (error: any) {
       console.error(error.response?.data || error);
-      setAlert({ type: 'error', message: error.response?.data?.message || 'Error en registro' });
-    } finally { setLoading(false); }
+      const backendErrors = error.response?.data?.errors; // Backend devuelve { email: "...", dni: "...", username: "...", telefono: "..." }
+      if (backendErrors) {
+        setErrors(prev => ({ ...prev, ...backendErrors }));
+        setAlert({ type: 'error', message: 'Corrige los errores en el formulario' });
+      } else {
+        setAlert({ type: 'error', message: error.response?.data?.message || 'Error en registro' });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Container maxWidth="sm" sx={{ py: 4, px: 2 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2, position: 'relative' }}>
-        {loading && <Box sx={{position:'absolute',top:0,left:0,right:0,bottom:0,display:'flex',alignItems:'center',justifyContent:'center',backgroundColor:'rgba(255,255,255,0.8)'}}><CircularProgress /></Box>}
+        {loading && (
+          <Box sx={{
+            position:'absolute', top:0, left:0, right:0, bottom:0,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            backgroundColor:'rgba(255,255,255,0.8)'
+          }}>
+            <CircularProgress />
+          </Box>
+        )}
+
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography variant="h4" gutterBottom>JFA DISTRIBUCIONES</Typography>
-          <Typography variant="h5" gutterBottom>CREAR CUENTA</Typography>
+          <Typography variant="h4" gutterBottom sx={{ whiteSpace: 'nowrap', fontSize: { xs: '1.5rem', sm: '2rem' }, textAlign: 'center' }}>
+            JFA DISTRIBUCIONES
+          </Typography>
+
+          <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
+            CREAR CUENTA
+          </Typography>
+
           {alert && <Alert severity={alert.type} sx={{ width: '100%', mb: 3 }}>{alert.message}</Alert>}
+
           <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', display:'flex', flexDirection:'column', gap:2 }}>
             {['nombre','apellido','dni','telefono','email','username'].map(f => (
               <TextField
-                key={f} fullWidth required id={f} label={f.charAt(0).toUpperCase()+f.slice(1)}
-                name={f} value={formData[f as keyof typeof formData]} onChange={handleChange}
-                error={!!errors[f as keyof FormErrors]} helperText={errors[f as keyof FormErrors]}
+                key={f} fullWidth required
+                id={f} label={f.charAt(0).toUpperCase()+f.slice(1)}
+                name={f} value={formData[f as keyof typeof formData]}
+                onChange={handleChange}
+                error={!!errors[f as keyof FormErrors]}
+                helperText={errors[f as keyof FormErrors]}
               />
             ))}
+
             <TextField
               fullWidth required id="contraseña" label="Contraseña" name="contraseña"
               type={showPassword?'text':'password'} value={formData.contraseña} onChange={handleChange}
               error={!!errors.contraseña} helperText={errors.contraseña}
-              InputProps={{ endAdornment: <InputAdornment position="end"><IconButton onClick={()=>setShowPassword(!showPassword)}>{showPassword?<VisibilityOff/>:<Visibility/>}</IconButton></InputAdornment> }}
+              InputProps={{ endAdornment: <InputAdornment position="end">
+                <IconButton onClick={()=>setShowPassword(!showPassword)}>
+                  {showPassword?<VisibilityOff/>:<Visibility/>}
+                </IconButton>
+              </InputAdornment> }}
             />
+
             <TextField
               fullWidth required id="confirmarPassword" label="Confirmar Contraseña" name="confirmarPassword"
               type={showConfirmPassword?'text':'password'} value={formData.confirmarPassword} onChange={handleChange}
               error={!!errors.confirmarPassword} helperText={errors.confirmarPassword}
-              InputProps={{ endAdornment: <InputAdornment position="end"><IconButton onClick={()=>setShowConfirmPassword(!showConfirmPassword)}>{showConfirmPassword?<VisibilityOff/>:<Visibility/>}</IconButton></InputAdornment> }}
+              InputProps={{ endAdornment: <InputAdornment position="end">
+                <IconButton onClick={()=>setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword?<VisibilityOff/>:<Visibility/>}
+                </IconButton>
+              </InputAdornment> }}
             />
+
             {[
               { key: 'direccion', label: 'Dirección' },
               { key: 'ciudad', label: 'Ciudad' },
               { key: 'codigo_postal', label: 'Código Postal' },
             ].map(f => (
               <TextField
-                key={f.key}
-                fullWidth
-                required
-                id={f.key}
-                label={f.label}
-                name={f.key}
-                value={formData[f.key as keyof typeof formData]}
-                onChange={handleChange}
-                error={!!errors[f.key as keyof FormErrors]}
-                helperText={errors[f.key as keyof FormErrors]}
+                key={f.key} fullWidth required
+                id={f.key} label={f.label} name={f.key}
+                value={formData[f.key as keyof typeof formData]} onChange={handleChange}
+                error={!!errors[f.key as keyof FormErrors]} helperText={errors[f.key as keyof FormErrors]}
               />
             ))}
-            <Button type="submit" fullWidth variant="contained">{loading?'REGISTRANDO...':'CREAR CUENTA'}</Button>
+
+            <Button type="submit" fullWidth variant="contained">
+              {loading ? 'REGISTRANDO...' : 'CREAR CUENTA'}
+            </Button>
+
             <Box sx={{ textAlign:'center' }}>
               <Link component={RouterLink} to="/login">¿Ya tienes cuenta? Inicia sesión aquí</Link>
             </Box>

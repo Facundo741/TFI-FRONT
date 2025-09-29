@@ -82,6 +82,12 @@ export const Navbar: React.FC = () => {
         const section = document.getElementById("categorias");
         if (section) section.scrollIntoView({ behavior: "smooth" });
       }
+    } else if (path === "/") {
+      if (window.location.pathname === "/") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        navigate("/");
+      }
     } else {
       navigate(path);
     }

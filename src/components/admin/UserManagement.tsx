@@ -15,17 +15,28 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  useMediaQuery,
+  useTheme,
+  Card,
+  CardContent,
+  Grid
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import API from "../../api/api";
 import type { User } from "../../types/User";
+import PaginationComponent from "../../utils/PaginationComponent";
 
 const UserManagement: React.FC = () => {
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 5;
 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const fetchUsuarios = async () => {
     try {
@@ -62,6 +73,44 @@ const UserManagement: React.FC = () => {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = usuarios.slice(indexOfFirstUser, indexOfLastUser);
+
+  const MobileUserCard = ({ usuario }: { usuario: User }) => (
+    <Card sx={{ mb: 2, p: 2 }}>
+      <CardContent>
+        <Grid container spacing={1} alignItems="center">
+          <Grid item xs={8}>
+            <Typography variant="h6" component="div" gutterBottom>
+              {usuario.nombre} {usuario.apellido}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              DNI: {usuario.dni}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {usuario.email}
+            </Typography>
+          </Grid>
+          <Grid item xs={4} sx={{ textAlign: 'right' }}>
+            <IconButton 
+              color="error" 
+              size="small" 
+              onClick={() => handleDeleteClick(usuario)}
+              sx={{ border: 1, borderColor: 'error.main' }}
+            >
+              <Delete fontSize="small" />
+            </IconButton>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <Box p={3}>
       <Typography variant="h4" gutterBottom>
@@ -71,37 +120,66 @@ const UserManagement: React.FC = () => {
       {loading ? (
         <Typography>Cargando usuarios...</Typography>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell><b>Nombre</b></TableCell>
-                <TableCell><b>Apellido</b></TableCell>
-                <TableCell><b>DNI</b></TableCell>
-                <TableCell><b>Email</b></TableCell>
-                <TableCell align="center"><b>Acciones</b></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {usuarios.map((usuario) => (
-                <TableRow key={usuario.id_usuario}>
-                  <TableCell>{usuario.nombre}</TableCell>
-                  <TableCell>{usuario.apellido}</TableCell>
-                  <TableCell>{usuario.dni}</TableCell>
-                  <TableCell>{usuario.email}</TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      sx={{ color: "red" }}
-                      onClick={() => handleDeleteClick(usuario)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
+        <>
+          {/* Vista para desktop */}
+          {!isMobile && (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell><b>Nombre</b></TableCell>
+                    <TableCell><b>Apellido</b></TableCell>
+                    <TableCell><b>DNI</b></TableCell>
+                    <TableCell><b>Email</b></TableCell>
+                    <TableCell align="center"><b>Acciones</b></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {currentUsers.map((usuario) => (
+                    <TableRow key={usuario.id_usuario}>
+                      <TableCell>{usuario.nombre}</TableCell>
+                      <TableCell>{usuario.apellido}</TableCell>
+                      <TableCell>{usuario.dni}</TableCell>
+                      <TableCell>{usuario.email}</TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          sx={{ color: "red" }}
+                          onClick={() => handleDeleteClick(usuario)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+
+          {isMobile && (
+            <Box>
+              {currentUsers.map((usuario) => (
+                <MobileUserCard key={usuario.id_usuario} usuario={usuario} />
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </Box>
+          )}
+
+          <PaginationComponent
+            currentPage={currentPage}
+            totalItems={usuarios.length}
+            itemsPerPage={usersPerPage}
+            onPageChange={handlePageChange}
+            itemsName="clientes"
+          />
+
+          {usuarios.length === 0 && (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="body1" color="textSecondary">
+                No hay clientes registrados
+              </Typography>
+            </Box>
+          )}
+        </>
       )}
 
       <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
