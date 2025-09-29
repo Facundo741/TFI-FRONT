@@ -108,7 +108,7 @@ const AdminReports: React.FC = () => {
             <li>Promedio por Factura: $ {formatSimple(metricasGenerales.promedio_venta)}</li>
             <li>Total Clientes: {metricasGenerales.total_clientes}</li>
             <li>Total Pedidos: {metricasGenerales.total_pedidos}</li>
-            <li>Facturas Pagadas: {metricasGenerales.facturas_pagadas}</li>
+            <li>Facturas Emitidas: {metricasGenerales.facturas_totales}</li>
             <li>Productos Stock Crítico: {metricasGenerales.productos_stock_critico}</li>
           </ul>
         </Box>

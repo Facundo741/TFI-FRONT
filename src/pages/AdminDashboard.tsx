@@ -46,7 +46,7 @@ const AdminDashboard: React.FC = () => {
     try {
       setLoading(true);
       setError('');
-      
+
       const token = sessionStorage.getItem('token');
       if (!token) throw new Error('No authentication token found');
 
@@ -63,33 +63,44 @@ const AdminDashboard: React.FC = () => {
         pedidosCompletados: 0
       };
 
+      // Productos
       const productosResponse = await API.get('/products', { headers: { Authorization: `Bearer ${token}` } });
       const productos = productosResponse.data;
       metrics.totalProductos = productos.length;
       metrics.productosStockBajo = productos.filter((p: any) => p.stock < 10 && p.stock > 0).length;
       metrics.productosSinStock = productos.filter((p: any) => p.stock === 0).length;
 
+      // Usuarios
       const usuariosResponse = await API.get('/users', { headers: { Authorization: `Bearer ${token}` } });
       metrics.totalClientes = usuariosResponse.data.filter((u: any) => u.role === 'user').length;
 
+      // Pedidos
       const pedidosResponse = await API.get('/order/', { headers: { Authorization: `Bearer ${token}` } });
       const pedidos = pedidosResponse.data;
       metrics.totalPedidos = pedidos.length;
       metrics.pedidosPendientes = pedidos.filter((p: any) => p.estado === 'pendiente').length;
       metrics.pedidosCompletados = pedidos.filter((p: any) => p.estado === 'completado').length;
 
+      // Facturas
       try {
         const estadisticasResponse = await API.get('/bill/admin/estadisticas', { headers: { Authorization: `Bearer ${token}` } });
         const e = estadisticasResponse.data;
-        metrics.facturasTotales = e.total_facturas || 0;
-        metrics.ingresosTotales = e.ingresos_totales || 0;
-        metrics.promedioPorFactura = e.promedio_por_factura || 0;
+        metrics.facturasTotales = e.total_facturas ?? 0;
+        metrics.ingresosTotales = Number(e.ingresos_totales ?? 0);
+        metrics.promedioPorFactura = Number(e.promedio_por_factura ?? 0);
       } catch {
         const facturasResponse = await API.get('/bill/', { headers: { Authorization: `Bearer ${token}` } });
         const facturas = facturasResponse.data;
         metrics.facturasTotales = facturas.length;
-        metrics.ingresosTotales = facturas.reduce((total: number, f: any) => total + (f.total || f.monto || 0), 0);
-        metrics.promedioPorFactura = metrics.facturasTotales > 0 ? metrics.ingresosTotales / metrics.facturasTotales : 0;
+        metrics.ingresosTotales = facturas.reduce(
+          (total: number, f: any) =>
+            total + (f.total ?? f.monto_total ?? f.monto ?? f.subtotal ?? 0),
+          0
+        );
+        metrics.promedioPorFactura =
+          metrics.facturasTotales > 0
+            ? metrics.ingresosTotales / metrics.facturasTotales
+            : 0;
       }
 
       setStats(metrics);
@@ -97,18 +108,6 @@ const AdminDashboard: React.FC = () => {
 
     } catch (err: any) {
       setError(err.response?.data?.error || err.message || 'Error loading dashboard data');
-      setStats({
-        totalProductos: 42,
-        totalClientes: 156,
-        totalPedidos: 128,
-        productosStockBajo: 15,
-        productosSinStock: 8,
-        facturasTotales: 2,
-        ingresosTotales: 125000,
-        promedioPorFactura: 62500,
-        pedidosPendientes: 23,
-        pedidosCompletados: 105
-      });
       setLastUpdated(new Date().toLocaleTimeString());
     } finally {
       setLoading(false);
@@ -139,7 +138,6 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', p: 3 }}>
-      {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'white', p: 3, borderRadius: 2, boxShadow: 1, mb: 4, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h4" gutterBottom color="#1a3447">🛠️ Panel de Administración</Typography>
@@ -155,7 +153,6 @@ const AdminDashboard: React.FC = () => {
 
       {error && <Alert severity="warning" sx={{ mb: 3 }}>{error} - Mostrando datos de demostración</Alert>}
 
-      {/* Estadísticas principales */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {dashboardStats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
