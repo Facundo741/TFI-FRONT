@@ -69,7 +69,7 @@ const PaymentPage: React.FC = () => {
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      const pedidoData = {
+        const pedidoData = {
           metodo_pago: state.metodoPago,
           metodo_entrega: state.metodoEntrega,
           direccion_entrega: state.direccion,
@@ -77,11 +77,15 @@ const PaymentPage: React.FC = () => {
           codigo_postal_entrega: state.codigoPostal,
           telefono_contacto: state.telefono,
           nombre_completo: state.nombre,
+          subtotal: state.subtotal,        
+          envio: envioFinal,               
+          total: totalFinal,               
           productos: state.cartItems.map(item => ({
             id_producto: item.id_producto,
             cantidad: item.cantidad,
+            precio_unitario: item.precio_unitario, 
           })),
-      };
+        };
 
       const res = await API.post(`/order/usuario/${user.id_usuario}/carrito/confirmar`, pedidoData);
 

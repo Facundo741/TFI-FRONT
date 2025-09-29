@@ -119,7 +119,7 @@ const Checkout: React.FC = () => {
     navigate("/checkout/pago", {
       state: {
         metodoPago,
-        metodoEntrega,            // <-- agregado
+        metodoEntrega,           
         subtotal: Number(subtotal.toFixed(2)),
         envio: Number(envioFinal.toFixed(2)),
         total: Number(totalFinal.toFixed(2)),
@@ -200,7 +200,6 @@ const Checkout: React.FC = () => {
         </RadioGroup>
       </Paper>
 
-      {/* Resumen del pedido */}
       <Paper sx={{ width: "100%", p: 3 }}>
         <Typography variant="h6" gutterBottom>Resumen del Pedido</Typography>
 
