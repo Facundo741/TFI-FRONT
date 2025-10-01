@@ -54,7 +54,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos, onEditProduct, o
   const currentProducts = productos.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(productos.length / productsPerPage);
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
 
