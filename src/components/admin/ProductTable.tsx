@@ -54,9 +54,9 @@ const ProductTable: React.FC<ProductTableProps> = ({ productos, onEditProduct, o
   const currentProducts = productos.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(productos.length / productsPerPage);
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-  };
+const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+  setPage(value);
+};
 
   const MobileProductCard = ({ producto }: { producto: Producto }) => (
     <Card sx={{ mb: 2, p: 2 }}>
