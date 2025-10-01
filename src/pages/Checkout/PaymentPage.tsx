@@ -42,9 +42,9 @@ const PaymentPage: React.FC = () => {
   const [transferName, setTransferName] = useState("");
   const [transferCuenta, setTransferCuenta] = useState("");
   const [transferReferencia, setTransferReferencia] = useState("");
-  const [cardNumber, setCardNumber] = useState(randomNumberString(16));
-  const [cardCCV, setCardCCV] = useState(randomNumberString(3));
-  const [cardExp, setCardExp] = useState(`${randomNumberString(2)}/${randomNumberString(2)}`);
+  const [cardNumber, _setCardNumber] = useState(randomNumberString(16));
+  const [cardCCV, _setCardCCV] = useState(randomNumberString(3));
+  const [cardExp, _setCardExp] = useState(`${randomNumberString(2)}/${randomNumberString(2)}`);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
