@@ -21,7 +21,6 @@ import {
   useTheme,
   Card,
   CardContent,
-  Grid
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import ProductForm from "./ProductForm";
